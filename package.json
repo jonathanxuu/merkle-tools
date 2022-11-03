@@ -24,7 +24,9 @@
   },
   "homepage": "https://github.com/Tierion/merkle-tools#readme",
   "dependencies": {
-    "js-sha3": "^0.8.0"
+    "bn": "^1.0.5",
+    "js-sha3": "^0.8.0",
+    "rescue": "./rescue"
   },
   "devDependencies": {
     "mocha": "^8.2.1"

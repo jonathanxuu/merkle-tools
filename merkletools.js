@@ -15,6 +15,9 @@ var sha3384 = require('js-sha3').sha3_384
 var sha3256 = require('js-sha3').sha3_256
 var sha3224 = require('js-sha3').sha3_224
 var crypto = require('crypto')
+const rescue = require("rescue");
+const BN = require("bn.js");
+
 
 var MerkleTools = function (treeOptions) {
   // in case 'new' was omitted
@@ -39,6 +42,8 @@ var MerkleTools = function (treeOptions) {
         return Buffer.from(sha3384.array(value))
       case 'SHA3-512':
         return Buffer.from(sha3512.array(value))
+      case 'RESCUE':
+        return _handle_rescue_hash(value);
       default:
         return crypto.createHash(hashType).update(value).digest()
     }
@@ -247,6 +252,39 @@ var MerkleTools = function (treeOptions) {
     }
     return nodes
   }
+  // This helps calculate rescue a merkle tree, which leaves are rescue hash, and the tree building hash is rescue hash
+  function _handle_rescue_hash (value){
+    let whole = _rootAddZeros_128(value.toString("hex"));
+    let para_1 = whole.substring(0, 64);
+    let para_2 = whole.substring(64);
+    var temp1 = new BN(para_1, "hex").toArray().toString();
+    var temp1_vec = temp1.split(",");
+    while (temp1_vec.length < 32) {
+      temp1_vec.unshift(0);
+    }
+    temp1 = temp1_vec.toString();
+    var para1_in_u64 = rescue.to_u64array(temp1);
+
+    var temp2 = new BN(para_2, "hex").toArray().toString();
+    var temp2_vec = temp2.split(",");
+    while (temp2_vec.length < 32) {
+      temp2_vec.unshift(0);
+    }
+    temp2 = temp2_vec.toString();
+    var para2_in_u64 = rescue.to_u64array(temp2);
+
+    const hash_result_in_u64 = rescue.rescue(para1_in_u64 + "," + para2_in_u64);
+    return Buffer.from(rescue.to_u8array(hash_result_in_u64.toString()));
+  }
+
+  // two u64 add together should be a u128, if not, we should pad '0's at the beginning
+  function _rootAddZeros_128(root) {
+    if (root.length < 128) {
+      return rootAddZeros((root = "0" + root));
+    } else {
+      return root;
+    };
+};
 }
 
 module.exports = MerkleTools
