@@ -42,7 +42,7 @@ describe('Test basic functions', function () {
   // the roothash should be u64, if not, we need to add '0's at the beginning
   function rootAddZeros_64(root){
     if (root.length < 64) {
-      return rootAddZeros((root = "0" + root));
+      return rootAddZeros_u64((root = "0" + root));
     } else {
       return root;
     }};

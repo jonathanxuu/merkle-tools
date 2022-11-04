@@ -263,7 +263,7 @@ var MerkleTools = function (treeOptions) {
       temp1_vec.unshift(0);
     }
     temp1 = temp1_vec.toString();
-    var para1_in_u64 = rescue.to_u64array(temp1);
+    var para1_in_u64 = rescue.string_to_u64array(temp1);
 
     var temp2 = new BN(para_2, "hex").toArray().toString();
     var temp2_vec = temp2.split(",");
@@ -271,10 +271,11 @@ var MerkleTools = function (treeOptions) {
       temp2_vec.unshift(0);
     }
     temp2 = temp2_vec.toString();
-    var para2_in_u64 = rescue.to_u64array(temp2);
+    var para2_in_u64 = rescue.string_to_u64array(temp2);
 
-    const hash_result_in_u64 = rescue.rescue(para1_in_u64 + "," + para2_in_u64);
-    return Buffer.from(rescue.to_u8array(hash_result_in_u64.toString()));
+    const hash_result_in_u64 = rescue.u64_string_rescue(para1_in_u64 + "," + para2_in_u64);
+
+    return Buffer.from(rescue.string_to_u8array(hash_result_in_u64.toString()));
   }
 
   // two u64 add together should be a u128, if not, we should pad '0's at the beginning
