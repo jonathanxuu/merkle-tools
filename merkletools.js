@@ -257,26 +257,23 @@ var MerkleTools = function (treeOptions) {
     let whole = _rootAddZeros_128(value.toString("hex"));
     let para_1 = whole.substring(0, 64);
     let para_2 = whole.substring(64);
-    var temp1 = new BN(para_1, "hex").toArray().toString();
-    var temp1_vec = temp1.split(",");
-    while (temp1_vec.length < 32) {
-      temp1_vec.unshift(0);
-    }
-    temp1 = temp1_vec.toString();
-    var para1_in_u64 = rescue.string_to_u64array(temp1);
-
-    var temp2 = new BN(para_2, "hex").toArray().toString();
-    var temp2_vec = temp2.split(",");
-    while (temp2_vec.length < 32) {
-      temp2_vec.unshift(0);
-    }
-    temp2 = temp2_vec.toString();
-    var para2_in_u64 = rescue.string_to_u64array(temp2);
-
-    const hash_result_in_u64 = rescue.u64_string_rescue(para1_in_u64 + "," + para2_in_u64);
-
+    var temp1 = rescue.u8a_to_u64a(new BN(para_1, "hex").toArray());
+    var temp2 = rescue.u8a_to_u64a(new BN(para_2, "hex").toArray());
+    
+    const hash_result_in_u64 = rescue.u64a_rescue(concat_BU64a(temp1, temp2));
     return Buffer.from(rescue.string_to_u8array(hash_result_in_u64.toString()));
   }
+
+  // Used to concat two BigUint64Array into one
+ function concat_BU64a(
+  concat_1,
+  concat_2
+) {
+  var concat_result = new BigUint64Array(concat_1.length + concat_2.length);
+  concat_result.set(concat_1);
+  concat_result.set(concat_2, concat_1.length);
+  return concat_result
+}
 
   // two u64 add together should be a u128, if not, we should pad '0's at the beginning
   function _rootAddZeros_128(root) {
